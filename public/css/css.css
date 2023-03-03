@@ -1,0 +1,120 @@
+body a{
+    text-decoration: none;
+}
+.bgpiccover{
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.mainlogo
+{
+    height:60px;
+    margin:10px;
+    padding:3px;
+    border:solid 1px #d31204;
+}
+
+.PC{
+    
+}
+
+.exams .exam .icon
+{
+    height:70px;
+}
+
+.bluetheme
+{
+    background-color: #082135;
+    color: white;
+}
+
+.bluefont
+{
+    color: #082135;
+}
+
+.redborder
+{
+    border-color: #d31204;
+    border-width: 1px;
+    border: solid 1px #d31204;
+}
+
+.blueborder
+{
+    border-color: #082135;
+}
+
+.redtheme
+{
+    background-color: #d31204;
+    color: white;
+}
+
+.redborder
+{
+    border-color: #d31204;
+}
+
+.redfont
+{
+    color: #d31204;
+}
+
+/*****************************/
+.present
+{
+    color: white;
+    background-color: #4caf50;
+}
+.absent
+{
+    color: white;
+    background-color: #ff5722;
+}
+.late
+{
+    color: #082135;
+    background-color: #ffeb3b;
+}
+.absent
+{
+    color: white;
+    background-color: #ff5722;
+}
+.dropout
+{
+    color: white;
+    background-color: #d31204;
+}
+.sick
+{
+    color: #082135;
+    background-color: lightblue;
+}
+.holiday
+{
+    color: #082135;
+    background-color: #ff9800;
+}
+.ongoingfont
+{
+    color: green;
+}
+.upcomingfont
+{
+    color: rgb(35, 35, 243);
+}
+
+.registertakenborder
+{
+    border-color:green;
+}
+
+.registernottakenborder
+{
+    border-color:orange;
+}
