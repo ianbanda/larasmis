@@ -23,3 +23,4 @@ Route::get('/', function () {
 Route::get('/students', 'App\Http\Controllers\Students@index');
 Route::get('/classes', 'App\Http\Controllers\Classes@index');
 Route::get('/classes/view', 'App\Http\Controllers\Classes@viewClass');
+Route::get('/authentication', 'App\Http\Controllers\Authentication@index');

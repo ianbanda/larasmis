@@ -2,8 +2,8 @@
 <html>
     <head>
         <title>@yield('title', 'Home Page')</title>
-        <link rel="stylesheet" href="css/css.css">
-        <link rel="stylesheet" href="css/w3.css">
+        <link rel="stylesheet" href="{{asset('css/css.css')}}">
+        <link rel="stylesheet" href="{{asset('css/w3.css')}}">
     </head>
     <body>
         <div class="container">

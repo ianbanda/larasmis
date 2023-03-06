@@ -11,8 +11,8 @@
                 <div class="w3-row">
                 <div  class=" w3-left">
                         <div class="">
-                            <b id="classabbr" class="w3-round-large w3-large w3-padding w3-border bluefont w3-margin-right">{abbr}</b>
-                            <b id="classname" class="">{name}</b>
+                            <b id="classabbr" class="w3-round-large w3-large w3-padding w3-border bluefont w3-margin-right">{{$class->abbr}}</b>
+                            <b id="classname" class="">{{$class->name}}</b>
                         </div>
                         
                     </div>
@@ -113,7 +113,10 @@
                                 <b class='w3-left w3-margin-right w3-text-grey w3-margin-bottom'>Students Taking</b>
                                 <select name='stdtakingsubSelect' id='stdtakingsubSelect' class="w3-small w3-right w3-padding" onchange='general.selectChanged()'>
                                     <!-- START subjectlist1 -->
-                                    <option value='{subjectid}' subname='{name}'>{abbr}</option>
+                                    @foreach ($classsubjects as $subject)
+                                    <option value='{{$subject->subjectid}}' subname='{{$subject->name}}'>{{$subject->abbr}}</option>
+                                    @endforeach
+                                    
                                     <!-- END subjectlist1 -->
                                 </select>
                             </h3>
@@ -169,9 +172,12 @@
 							<div class="w3-left">Subjects</div>
 							<div class="w3-row mainsubs w3-left w3-margin-left">
         						<!-- START subjectlist --> 
-        						<div id='{subjectid}' abbr="{abbr}" class="sub w3-left w3-white w3-round-large w3-border w3-padding w3-margin-right" style="font-size:10px;">
-        						    {abbr}
+                                @foreach ($classsubjects as $subject)
+                                <div id='{subjectid}' abbr="{abbr}" class="sub w3-left w3-white w3-round-large w3-border w3-padding w3-margin-right" style="font-size:10px;">
+        						    {{$subject->abbr}}
         						</div>
+                                @endforeach
+        						
         						<!-- END subjectlist -->
         					</div>
 							
@@ -203,30 +209,30 @@
                     <div class="w3-white w3-border" style="">
     
                         <ul id="studentlist" class="w3-ul exams w3-margin">
-                            <!-- START studentlist -->
+                            @foreach ($classstudents as $std)
                             <li id="{user_id}">
                                 <div class="exam w3-row">
         						<input stdid='{studentid}' class="w3-left w3-margin-top w3-margin-right stdlistcbx" onclick="stdclass.stdselectCBX()" type="checkbox" />
                                     <div class="w3-round-xxlarge w3-left w3-light-gray bgpiccover" style="background-image: url({bits}Views/default/images/{gender}user.png);height: 40px; min-width:40px;padding: 5px;margin: 5px"></div>
                                     <div class="w3-left w3-margin-left w3-small">
                                         <div class="w3-row">
-                                            <b class="bluefont w3-margin-right w3-left">{stdcode}</b>
-                                            <div class="w3-left redfont stdname">{stdname}</div>        
+                                            <b class="bluefont w3-margin-right w3-left">{{$std->stdcode}}</b>
+                                            <div class="w3-left redfont stdname">{{$std->stdname}}</div>        
                                         </div>
                                         <div class="w3-text-grey w3-tiny w3-row">
-                                            <div class="w3-left subjects">{subjectstaken}</div>
+                                            <div class="w3-left subjects">{{$std->subjectstaken}}</div>
                                         </div>                        
                                         <div class=" w3-tiny w3-row">
-                                            <div class="w3-left atthist w3-text-green w3-margin-right"><b>{gender}</b></div>
-                                            <div class="w3-left atthist"><b>{atthist}</b></div>
+                                            <div class="w3-left atthist w3-text-green w3-margin-right"><b>{{$std->gender}}</b></div>
+                                            <div class="w3-left atthist"><b>{{$std->atthist}}</b></div>
                                         </div>                        
                                     </div>
                                     <div class="w3-row w3-right w3-card">
                                         <div class="w3-right w3-hide-small">
-                                        <a href='{bits}student/view?id={studentid}&section=academic' class="w3-black w3-tiny w3-btn w3-text-white">View</a>                        
+                                        <a href='student/view?id={studentid}&section=academic' class="w3-black w3-tiny w3-btn w3-text-white">View</a>                        
                                         </div>
                                         <div class="w3-right w3-hide-small">
-                                            <button class="w3-light-gray w3-tiny w3-btn" stdname="{stdname}" onclick="stdclass.showStdTransferModal(this,'{user_id}','{stdcode}')">Transfer</button>                        
+                                            <button class="w3-light-gray w3-tiny w3-btn" stdname="{{$std->stdname}}" onclick="stdclass.showStdTransferModal(this,'{{$std->user_id}}','{stdcode}')">Transfer</button>                        
                                         </div>    
                                     </div>
                                     
@@ -235,7 +241,8 @@
                                     </div>
                                 </div>
                             </li>
-                            <!-- END studentlist -->
+                            @endforeach
+                           
         
                         </ul>  
         
