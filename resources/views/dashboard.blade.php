@@ -114,7 +114,10 @@
                     <label class="w3-margin-left">Classes</label>
                     <select class="w3-text-red w3-select w3-small" id="selectTTClass"  name="selectTTClass" onchange='general.selectChanged()'>
                         <!-- START ttclasslist -->
-                        <option value="{ID}">{name}</option>
+                        @foreach ($classes as $cl)
+                            <option value="{{$cl->ID}}">{{$cl->name}}</option>
+                        @endforeach
+                        
                         <!-- END ttclasslist -->
                     </select>
                 </div>
@@ -122,7 +125,10 @@
                     <label class="w3-margin-left">Type</label>
                     <select class="w3-text-red w3-select w3-small" id="homeTTSelect"  name="homeTTSelect" onchange='general.selectChanged()'>
                         <!-- START tttypelist -->
-                        <option value="{ID}">{name}</option>
+                        @foreach ($tttypes as $tttype)
+                            <option value="{{$tttype->ID}}">{{$tttype->name}}</option>
+                        @endforeach
+
                         <!-- END tttypelist -->
                     </select>
                 </div>

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class TeachersController extends Controller
+class TeachersController extends StaffController
 {
     //
     public function getTeachers($classid=0,$term=1)

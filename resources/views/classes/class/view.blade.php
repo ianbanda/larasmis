@@ -18,8 +18,8 @@
                     </div>
                     <div class="w3-row w3-right">
                         
-                        <button class='w3-right w3-btn redfont w3-white w3-border w3-border-red w3-border-grey w3-card w3-large w3-margin w3-round-large' onclick="attendance.showClassAttencanceModal('{classid}','Daily')"> Take Attendance</button>
-                        <button class='w3-right w3-btn redfont w3-white w3-border w3-border-red w3-border-grey w3-card w3-large w3-margin w3-round-large' onclick="attendance.showClassAttencanceModal('{classid}','Daily')"> Exams & Tests</button>
+                        <button class='w3-right w3-btn redfont w3-white w3-border w3-border-red w3-border-grey w3-card w3-large w3-margin w3-round-large' onclick="attendance.showClassAttencanceModal('{{$class->ID}}','Daily')"> Take Attendance</button>
+                        <button class='w3-right w3-btn redfont w3-white w3-border w3-border-red w3-border-grey w3-card w3-large w3-margin w3-round-large' onclick="attendance.showClassAttencanceModal('{{$class->ID}}','Daily')"> Exams & Tests</button>
                         <button class='w3-right w3-btn redfont w3-white w3-border w3-border-red w3-border-grey w3-card w3-large w3-margin w3-round-large' onclick="stdclass.showClassHWModal()"> Homeworks</button>
                     </div>
                 </div>
@@ -44,9 +44,14 @@
     						</div>
         					<div class="w3-row mainfts w3-left">
         						<!-- START ftlist --> 
-        						<div id='{teacherid}' class="ft w3-left w3-white w3-round-large w3-border w3-padding w3-margin-right" style="font-size:10px;">
-        						{teachername}
-        						</div>
+                                @forelse ($formteachers as $fteacher)
+                                    <div id='{{$fteacher->teacherid}}' class="ft w3-left w3-white w3-round-large w3-border w3-padding w3-margin-right" style="font-size:10px;">
+                                        {{$fteacher->teachername}}
+                                    </div>
+                                @empty
+                                    <span>Not Assigned</span>
+                                @endforelse
+        						
         						<!-- END ftlist -->
         					</div>
     				    </div>
@@ -269,7 +274,7 @@
       <div id='classAttModalCont'>
 		<h3 class='redfont title' style='font-weight:bold'>Students taking </h3>
         <div class='w3-row w3-tiny w3-text-grey'>
-            <h4 class="w3-text-grey w3-border-top">{name}</h4>
+            <h4 class="w3-text-grey w3-border-top">{{$class->name}}</h4>
         </div>
         <div class='' style='overflow-y: auto;height: 150px;'>
             <table id='subjectstdstable'>
@@ -484,7 +489,7 @@
                 </div>
             </div>
             <div class='w3-margin w3-left  w3-padding' id='camrc'>
-                <h3><b class="redfont w3-border-bottom w3-margin-bottom w3-margin-right">{name}</b> | Take Attendance Register</h3>
+                <h3><b class="redfont w3-border-bottom w3-margin-bottom w3-margin-right">{{$class->name}}</b> | Take Attendance Register</h3>
                 <div class="">
                     <ul id="classAttendanceStdList" class="w3-ul">
                         <!-- START classAttendanceStdList -->
@@ -520,7 +525,7 @@
         <div class='w3-row w3-tiny w3-text-grey'>
             
             <div class='w3-margin w3-left  w3-padding' id='camrc'>
-                <h2><b class="redfont w3-margin-bottom w3-margin-right">{name}</b> | Homeworks & Assignments</h2>
+                <h2><b class="redfont w3-margin-bottom w3-margin-right">{{$class->name}}</b> | Homeworks & Assignments</h2>
                 <div class="w3-row">
                     <div class="w3-third">
                         Term
@@ -577,7 +582,7 @@
                     <br>
                     <div class="w3-left w3-quarter">From : </div>
                     <div class="w3-left w3-threequarter">
-                        <b class="">{name}</b>
+                        <b class="">{{$class->name}}</b>
                     </div>
                 </h4>
                 <h4 class="w3-row">

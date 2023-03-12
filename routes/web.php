@@ -4,6 +4,7 @@ use App\Http\Controllers\Authentication;
 use App\Http\Controllers\Classes;
 use App\Http\Controllers\Students;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,8 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'App\Http\Controllers\DashboardController@index', 'dashboard'); 
 
 Route::get('/students', 'App\Http\Controllers\Students@index');
-Route::get('/classes', 'App\Http\Controllers\Classes@index');
-Route::get('/classes/view', 'App\Http\Controllers\Classes@viewClass');
+//Route::get('/classes/view', 'App\Http\Controllers\Classes@viewClass');
 Route::get('/authentication', 'App\Http\Controllers\Authentication@index');
 Route::get('/authentication/login', 'App\Http\Controllers\Authentication@loginScreen')->name('login');
 Route::post('/authentication/login/submit', 'App\Http\Controllers\Authentication@login')->name('login.submit');
@@ -61,4 +61,28 @@ Route::controller(RegistrationsController::class)->group(function () {
 use App\Http\Controllers\TimetablesController;
 Route::controller(TimetablesController::class)->group(function () {
     Route::get('/timetables', 'index');
+});
+
+use App\Http\Controllers\ClassesController;
+Route::controller(ClassesController::class)->group(function () {
+    Route::get('/classes', 'index');
+    Route::get('/classes/view', 'viewClass');
+});
+
+use App\Models\StdClass;
+Route::GET('/getmsg', function (Request $request) {
+    if(isset($request['isajax']))
+    {
+        $msg = "This is a simple ajax message.";
+        
+        $class = new StdClass(1,1,true);
+        return $class->getStudentAttendanceList();
+    }else
+    {
+        $msg = "This is a simple message.";
+        return $msg;
+    }
+    
+    //return response()->json(array('msg'=> $msg), 200);
+    //return ['msg'=> $msg];
 });
