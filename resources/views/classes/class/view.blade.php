@@ -119,7 +119,7 @@
                                 <select name='stdtakingsubSelect' id='stdtakingsubSelect' class="w3-small w3-right w3-padding" onchange='general.selectChanged()'>
                                     <!-- START subjectlist1 -->
                                     @foreach ($classsubjects as $subject)
-                                    <option value='{{$subject->subjectid}}' subname='{{$subject->name}}'>{{$subject->abbr}}</option>
+                                        <option value='{{$subject->subjectid}}' subname='{{$subject->name}}'>{{$subject->abbr}}</option>
                                     @endforeach
                                     
                                     <!-- END subjectlist1 -->
@@ -192,7 +192,9 @@
 					<div id="classsubabbrs" class="w3-row " style='display:none'>
 					    &lt;td&gt;&lt;/td&gt;
 						<!-- START subjectabbrlist --> 
-						    &lt;td&gt;{abbr}&lt;/td&gt;
+                        @foreach ($classsubjects as $subject)
+						    &lt;td&gt;{{$subject->abbr}}&lt;/td&gt;
+                        @endforeach
 						<!-- END subjectabbrlist -->
 					</div>
 				</div>
@@ -207,7 +209,7 @@
             <div id="tabcontainer" init="1">
                 <div class="w3-twothird" style="">
                     <h3 class="w3-row">
-                        <b class="w3-left">Students In {name}</b>
+                        <b class="w3-left">Students In {{$class->name}}</b>
                         <button class='w3-right w3-btn redtheme w3-small w3-margin w3-round-large'  onclick="document.getElementById('newStudentModal').style.display = 'block'">+ Create New Student</button>
                         <button class='w3-right w3-btn redtheme w3-small w3-margin w3-round-large'  onclick="document.getElementById('editStudentsModal').style.display = 'block'">Edit Students</button>
                     </h3>
@@ -300,7 +302,7 @@
   </div>
 </div>
 
-<!-- The edit Class Subjects Modal -->
+<!-- The edit Class Form Teachers Modal -->
 <div id="editFormTeachersModal" class="w3-modal">
   <div class="w3-modal-content">
     <div class="w3-container">
@@ -313,12 +315,12 @@
                 <h6>Assigned</h6>
                 <div id='a' class="w3-ul w3-row ftassigned">
                     <!-- START eftlist -->
-					<button id="{teacherid}"
-						onclick="buttons.selectButton()"
-					    selected="yes" 
+                    @foreach ($formteachers as $ft)
+                		<button id="{teacherid}" onclick="buttons.selectButton()"  selected="yes" 
 					    class="w3-tiny w3-border w3-input w3-margin-bottom w3-border-red w3-btn w3-round-large w3-left w3-border w3-padding w3-red">
-					    {teachername}
-					</button>
+                            {{$ft->teachername}}
+                        </button>
+                    @endforeach 
 					<!-- END eftlist -->
 				</div>
             </div>
@@ -348,11 +350,13 @@
                 <h6>Not Assigned</h6>
                 <div id='na' class="w3-ul w3-row ftnotassigned"  style="max-height:250px;height:250px;overflow-y:auto">
                     <!-- START nonftlist -->
+                    @foreach ($nonformteachers as $nft)
 					<button
 					    onclick="buttons.selectButton()"
 					    selected="yes" class="w3-tiny w3-border w3-border-red w3-input w3-margin-bottom w3-btn w3-round-large w3-left w3-border w3-padding w3-white">
-					{teachername}
+					{{$nft->teachername}}
 					</button>
+                    @endforeach
 					<!-- END nonftlist -->
 				</div>
             </div>
@@ -451,14 +455,19 @@
                 <div class="w3-margin-bottom" style="max-height:100px;">
                     <ul id="classAttendanceStdList" class="w3-ul">
                         <!-- START gotoclasslist -->
-                        <a href="?classid={ID}">
-                        <li class="w3-row w3-third w3-padding">
-                            <div class="w3-border w3-round-large">
-                                <h1 class="w3-border-bottom w3-text-grey w3-center"><b>{abbr}</b></h1> 
-                                <div class="w3-center redfont">{name}</div>
-                            </div>
-                        </li>
-                        </a>
+                        @forelse ($gotoclasslist as  $gtc)
+                            <a href="?classid={{$gtc->ID}}">
+                                <li class="w3-row w3-third w3-padding">
+                                    <div class="w3-border w3-round-large">
+                                        <h1 class="w3-border-bottom w3-text-grey w3-center"><b>{{$gtc->abbr}}</b></h1> 
+                                        <div class="w3-center redfont">{{$gtc->name}}</div>
+                                    </div>
+                                </li>
+                            </a>
+                        @empty
+                            There are no more classes to display
+                        @endforelse
+                        
                         <!-- END gotoclasslist -->
                     </ul>
                     <br>
@@ -606,9 +615,11 @@
                         <b class="bluefont">
                             <select name="selectTransferTerm" id="selectTransferTerm" class="w3-select">
                                 <!-- START termslist -->
-                                <option class="w3-row" value="{ID}">
-                                    {name}
-                                </option>
+                                @foreach ($termslist as $term)
+                                    <option class="w3-row" value="{ID}">
+                                        {{$term->name}}
+                                    </option>
+                                @endforeach
                                 <!-- END termslist -->
                             </select>
                         </b>
@@ -642,15 +653,18 @@
                 <h2 class="w3-center"><b>Student Subject Allocation</b></h2>
                 <h3 class="">
                     <div class="w3-half">
-                        <b class="redfont stddetails w3-margin-bottom w3-margin-right" stdid="" stdcode="">{name}</b>
+                        <b class="redfont stddetails w3-margin-bottom w3-margin-right" stdid="" stdcode="">{{$class->name}}</b>
                     </div>
                     <div class="w3-half w3-large w3-row">
                         <div class="w3-large w3-left w3-quarter">Term</div>
                         <select class="w3-select w3-padding w3-border w3-round w3-threequarter" name="selectStdSubjectTerm" id="selectStdSubjectTerm">
                             <!-- START classtermslist -->
-                            <option class="w3-row w3-text-grey" value="{ID}">
-                                <b>{name}</b>
-                            </option>
+                            @foreach ($termslist as $term)
+                                <option class="w3-row w3-text-grey" value="{ID}">
+                                    <b>{{$term->name}}</b>
+                                </option>
+                            @endforeach
+                            
                             <!-- END classtermslist -->
                         </select>
                     </div>
@@ -692,51 +706,54 @@
                         <div classs="w3-left bluefont w3-margin-right"><B>Edit Student Details </B></div>
                         <button class="w3-btn w3-left redfont" onclick="students.creationForm('single')"><b>Class Students </b></button>
                     </h3>
-                    <h6>{name} </h6>
+                    <h6>{{$class->name}} </h6>
                 </div>
                 <div class='w3-white w3-margin' id="">
                     <div class="w3-margin" id="editStudentsForm" style="overflow-y:auto;max-height:250px">
 						<div class='{bits}'id="bits" style='display:none;'></div>
                         <br>
                         <!-- START editStudentList -->
-                        <div class="stdrow w3-light-gray w3-tiny w3-round w3-border w3-padding w3-row w3-margin-bottom w3-text-grey" stdid='{user_id}'>
-							<input class="" type="hidden" name='classid' value="{id}" />
-							<div class="w3-twothird">
-							    <div class="w3-row  w3-left w3-third">
-                                    <div class="">Firstname</div>
-                                    <input class="w3-input fname" name='fname' value='{firstname}' />
-                                </div> 
-                                <div class="w3-row w3-left w3-third" style='padding-left:5px'>
-                                    <div class="">Othernames</div>
-                                    <input class="w3-input onames" name='onames' value='{othernames}' />
+                        @foreach ($classstudents as $std)
+                            <div class="stdrow w3-light-gray w3-tiny w3-round w3-border w3-padding w3-row w3-margin-bottom w3-text-grey" stdid='{user_id}'>
+                                <input class="" type="hidden" name='classid' value="{{$class->ID}}" />
+                                <div class="w3-twothird">
+                                    <div class="w3-row  w3-left w3-third">
+                                        <div class="">Firstname</div>
+                                        <input class="w3-input fname" name='fname' value='{{$std->firstname}}' />
+                                    </div> 
+                                    <div class="w3-row w3-left w3-third" style='padding-left:5px'>
+                                        <div class="">Othernames</div>
+                                        <input class="w3-input onames" name='onames' value='{{$std->othernames}}' />
+                                    </div>
+                                    <div class="w3-row w3-left w3-third" style='padding-left:5px'>
+                                        <div class="">Surname</div>
+                                        <input class="w3-input sname" name='sname' value='{{$std->surname}}' />
+                                    </div>
                                 </div>
-                                <div class="w3-row w3-left w3-third" style='padding-left:5px'>
-                                    <div class="">Surname</div>
-                                    <input class="w3-input sname" name='sname' value='{surname}' />
+                                <div class='w3-third'>
+                                    <div class="w3-row w3-half" style='padding-left:5px'>
+                                    <div class="w3-row">
+                                        <div class='w3-left'>Date of Birth</div> 
+                                        <a href='#' onclick='$("editdoblink{{$std->user_id}}").show();$(".dob{{$std->user_id}}").show();$(".dobdp{{$std->user_id}}").hide();$(this).hide()' style='display:none' class='redfont w3-right closedobedit{{$std->user_id}}'><b>x</b></a> 
+                                    </div>
+                                    <div class="dob{{$std->user_id}} bluefont">{{$std->user_dob}}</div>
+                                    <div class=""><a href='#' onclick='$(this).hide();$(".dob{{$std->user_id}}").hide();$(".dobdp{{$std->user_id}}").show();$(".closedobedit{{$std->user_id}}").show();' class='redfont editdoblink{{$std->user_id}}'>Edit DOB</a></div>
+                                    <input class="w3-input dob dobdp{{$std->user_id}}" name='dob' type="date" value='{dob}' style='display:none;' />
                                 </div>
-							</div>
-                            <div class='w3-third'>
-                                <div class="w3-row w3-half" style='padding-left:5px'>
-                                <div class="w3-row">
-                                    <div class='w3-left'>Date of Birth</div> 
-                                    <a href='#' onclick='$("editdoblink{user_id}").show();$(".dob{user_id}").show();$(".dobdp{user_id}").hide();$(this).hide()' style='display:none' class='redfont w3-right closedobedit{user_id}'><b>x</b></a> 
-                                </div>
-                                <div class="dob{user_id} bluefont">{user_dob}</div>
-                                <div class=""><a href='#' onclick='$(this).hide();$(".dob{user_id}").hide();$(".dobdp{user_id}").show();$(".closedobedit{user_id}").show();' class='redfont editdoblink{user_id}'>Edit DOB</a></div>
-                                <input class="w3-input dob dobdp{user_id}" name='dob' type="date" value='{dob}' style='display:none;' />
-                            </div>
-                                <div class="w3-row w3-half" style='padding-left:5px'>
-                                <div class="">Gender : {gender}</div>
-                                <div class=""><a href='#' onclick='$(this).hide();$(".genderselect{user_id}").show()' class='redfont'>Edit Gender</a></div>
-                                <div class="">
-                                    <select class="gender w3-select w3-white genderselect{user_id}" name='gender' style='display:none;' onchange='$(this).attr("changed","true");' changed='false'>
-                                        <option>Male</option>
-                                        <option>Female</option>
-                                    </select>
+                                    <div class="w3-row w3-half" style='padding-left:5px'>
+                                    <div class="">Gender : {{$std->gender}}</div>
+                                    <div class=""><a href='#' onclick='$(this).hide();$(".genderselect{{$std->user_id}}").show()' class='redfont'>Edit Gender</a></div>
+                                    <div class="">
+                                        <select class="gender w3-select w3-white genderselect{{$std->user_id}}" name='gender' style='display:none;' onchange='$(this).attr("changed","true");' changed='false'>
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                        </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
+                        
                         <!-- END editStudentList -->
                     </div>
                     

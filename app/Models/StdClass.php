@@ -373,6 +373,46 @@ class StdClass extends Model
             return $outp;
         }
     }
+
+    public function getStudentSubjects()
+    {
+       
+        $classid = $this->id;
+        
+        ///IFNULL((SELECT COUNT(*) FROM std_stubjects WHERE studentid=sic.studentid LIMIT 1),1)
+        $sql = "SELECT sic.studentid
+            , (CONCAT_WS(' ',p.firstname,p.othernames,p.surname)) AS stdname
+            ,(SELECT GROUP_CONCAT(IF((SELECT COUNT(*) FROM std_subjects ss WHERE ss.studentid=sic.studentid AND ss.subjectid=cs.subjectid)>0,'T','D')) FROM classsubjects cs WHERE cs.classid='$classid') AS takingstatuses
+            ,(SELECT GROUP_CONCAT(cs.subjectid) FROM classsubjects cs WHERE cs.classid='$classid') AS thesubjects
+        FROM studentsinclass sic, profile p WHERE p.user_id=sic.studentid AND sic.classid='$classid'
+        ORDER BY (SELECT ROUND(IFNULL(SUM(scoreValue)/IFNULL((SELECT COUNT(*) FROM std_subjects ss WHERE ss.studentid=sic.studentid LIMIT 1),0),0)) FROM scores sc WHERE sc.studentid=sic.studentid AND (SELECT papertype FROM papers WHERE ID=sc.paperid LIMIT 1)!=2 LIMIT 1) DESC
+        ";
+        
+        //return DB::select($sql);
+        return $sql;
+            
+    }
+    public function getOtherClasses($classid=0) {
+        $sql = "SELECT *"
+                . ", (SELECT COUNT(studentid) FROM studentsinclass WHERE classID=ID LIMIT 1) AS numofstudents"
+                . ", (
+						SELECT 
+							GROUP_CONCAT((SELECT abbr FROM subjects WHERE ID=subjectid LIMIT 1),' ') 
+						FROM classsubjects WHERE classid=cl.ID LIMIT 1
+					 ) AS subjects"
+                . ", (SELECT COUNT(*) FROM classteachers WHERE classid=ID LIMIT 1) AS numofteachers"
+                . ", (SELECT COUNT(*) FROM studentsinclass WHERE classID=cl.ID LIMIT 1) AS numonroll"
+                . ", (SELECT COUNT(*) FROM studentsinclass sic WHERE classID=cl.ID AND (SELECT gender FROM profile WHERE user_id=sic.studentid LIMIT 1)='MALE' LIMIT 1) AS numofboys"
+                . ", (SELECT COUNT(*) FROM studentsinclass sic WHERE classID=cl.ID AND (SELECT gender FROM profile WHERE user_id=sic.studentid LIMIT 1)='FEMALE' LIMIT 1) AS numofgirls"
+                . ", (SELECT name FROM terms WHERE ID=term LIMIT 1) AS termname"
+                . ", (ID) AS classid"
+                . " FROM classes cl WHERE ID!='$classid'";
+
+        $cache = DB::select($sql);
+        return $cache;
+    }
+
+
     /**
      * Convert the group data to template tags
      * @param String $prefix prefix for the template tags

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StdClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Terms;
 
 class ClassesController extends Controller
 {
@@ -21,17 +22,50 @@ class ClassesController extends Controller
  
          $classid = $request['classid'];
          $term = 0;
+
+        $terms = new Terms();
+        $termlist = $terms->getTerms();
+
          $classModel = new StdClass($classid,$term);
          $classstudents = $classModel->getStudents($classid,$term);
          $classsubjects = $classModel->getSubjects($classid,$term);
          $formteachers = $classModel->getFormTeachers($classid,$term);
+         $nonformteachers = $classModel->getNonFormTeachers($classid,$term);
+         $gotoclasslist = $classModel->getOtherClasses($classid);
          return view('classes.class.view'
-             ,['class'=>$class[0]
-             ,'classstudents'=>$classstudents
-             ,'classsubjects'=>$classsubjects
-             ,'formteachers'=>$formteachers
+             ,[
+                'class'=>$class[0]
+                ,'gotoclasslist'=>$gotoclasslist
+                ,'classstudents'=>$classstudents
+                ,'classsubjects'=>$classsubjects
+                ,'formteachers'=>$formteachers
+                ,'nonformteachers'=>$nonformteachers
+                ,'termslist'=>$termlist
              ]
          );
+     }
+
+     public function ajax(Request $request)
+     {
+        $return = 0;
+        $action = $request['action'];
+        $action = strtolower($action);
+        switch ($action) {
+            case 'getstudentsubjects':
+                $classid = $request['classid'];
+                $term =  $request['term'];
+
+                $classModel = new StdClass($classid,$term);
+                $return = $classModel->getStudentSubjects();
+
+                //$class = new StdClass(1);
+                //$return = $class->getStudents();
+                break;
+        }
+
+        
+        return $return;
+        
      }
  
      public function getClassStudents($classid,$term)

@@ -67,11 +67,12 @@ use App\Http\Controllers\ClassesController;
 Route::controller(ClassesController::class)->group(function () {
     Route::get('/classes', 'index');
     Route::get('/classes/view', 'viewClass');
+    Route::get('/classes/ajax', 'ajax');
 });
 
 use App\Models\StdClass;
 Route::GET('/getmsg', function (Request $request) {
-    if(isset($request['isajax']))
+    /*if(isset($request['isajax']))
     {
         $msg = "This is a simple ajax message.";
         
@@ -80,9 +81,15 @@ Route::GET('/getmsg', function (Request $request) {
     }else
     {
         $msg = "This is a simple message.";
-        return $msg;
+        //return $msg;
     }
+
+    */
+    $class = new StdClass(1);
+    return $class->getStudents();
+    /*return "[
+        'name' => 'Abigail',
+        'state' => 'CA',
+    ]";*/
     
-    //return response()->json(array('msg'=> $msg), 200);
-    //return ['msg'=> $msg];
 });

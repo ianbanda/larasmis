@@ -9,7 +9,13 @@
         xhttp.open("GET", "/getmsg");
         xhttp.send();*/      
         $.get("/getmsg", function(data, status){
-            alert("Data: " + data + "\nStatus: " + status);
+            //alert("Data: " + data + "\nStatus: " + status);
+            for(x in data)
+            {
+                alert(data[x].firstname);
+            }
+            //var result = JSON.parse(data);
+            //alert("result: " + result);
         });         
     }
 
@@ -1854,22 +1860,25 @@
         query: "",
         loadSubjectStdTakingStats: function(classid,subjectid)
 		{
+            //alert('Please select a class');
 		    var bits = $('#bits').attr('class');
 		    this.query = bits+"lib/classes/stdclass.php?action=getstudentsubjectstats&classid="+classid+"&subjectid="+subjectid;
-			this.object = {
+			this.query = "/getmsg";
+            this.object = {
 				//paperid:examid
 			};
 			
 			//alert(this.query);
 			
-			$.post(this.query,
-                this.object,
+			$.get(this.query,
                 function (data, status) {
-                    //alert(" My Data: " + data + "\nStatus: " + status);
-                    r = JSON.parse(data); 
+                    //alert("My Data: " + data + "\nStatus: " + status);
+                    r = data; 
+                    //r = JSON.parse(data); 
                     //alert(r);
                     for(x in r)
                     {
+                        
                         var mctr = r[x].malectr;
                         var fctr = r[x].femalectr;
                         var stdctr = r[x].stdctr;
@@ -1947,15 +1956,13 @@
 		    document.getElementById('stdSubjectMatrixModal').style.display = 'block';
 		    var classid = $("#classid").attr("class");
 		    var bits = $('#bits').attr('class');
-		    this.query = bits+"lib/classes/stdclass.php?action=getstudentsubjects&classid="+classid;
-			this.object = {
-				//paperid:examid
-			};
+		    //this.query = bits+"lib/classes/stdclass.php?action=getstudentsubjects&classid="+classid+"&termid=1";
+		    this.query = "/classes/ajax?action=getstudentsubjects&classid="+classid+"&termid=1";
+			
 			
 			//alert(this.query);
 			
-			$.post(this.query,
-                this.object,
+			$.get(this.query,
                 function (data, status) {
                     alert(" My Data: " + data + "\nStatus: " + status);
                     r = JSON.parse(data); 
@@ -2931,8 +2938,6 @@
                 });
         }
     };
-	
-   
     
     $(document).ready(function () {
 
