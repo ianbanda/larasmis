@@ -1,13 +1,7 @@
 
     function getMessage() {
         //alert('Message');
-        /*const xhttp = new XMLHttpRequest();
-        xhttp.onload = function() {
-            document.getElementById("msg").innerHTML = this.responseText;
-            alert(this.responseText);
-        }
-        xhttp.open("GET", "/getmsg");
-        xhttp.send();*/      
+            
         $.get("/getmsg", function(data, status){
             //alert("Data: " + data + "\nStatus: " + status);
             for(x in data)
@@ -1640,7 +1634,8 @@
             var bits = $('#bits').attr('class');
             if(atttype==='Daily'){
                 this.query = bits+"lib/classes/stdclass.php?action=studentAttList&filter=1";
-                this.query = '/getmsg?isajax=true';
+                this.query = '/classes/ajax?action=studentAttList&classid='+classid+'&for=Daily';
+
             }
             if(atttype==='Period'){
                 this.query = bits+"lib/periods/lessonperiods.php?action=studentAttList&filter=1";
@@ -1654,15 +1649,15 @@
             $.get(this.query,
                 this.object,
                 function (data, status) {
-                    alert("My Data: dhd" + data + "\nStatus: " + status);
-                    /*
-                    result = JSON.parse(data); 
+                    alert("My Data:" + data + "\nStatus: " + status);
+                    //result = JSON.parse(data); 
                     //alert(result);
-                    var txt = ""; var x=0; var ctr = 0;
+                    var txt = ""; var x; var ctr = 0;
                     for (x in result){
+                        alert('ian');
                         var latetime = "";
-                        //alert(result[x].attstatus);
-                        if(result[x].attstatus=="L")
+                        alert(result[x].stdname);
+                        /*if(result[x].attstatus=="L")
                         {
                             latetime = "<div class='w3-left w3-margin-left'>Time In<br><input type='time' class='w3-left' value="+result[x].timein+" /></div>";
                             alert(latetime);
@@ -1680,10 +1675,11 @@
                             +'</li>';
                         
                         ctr += 1;
+                        */
                     }
 
                     $('#classAttendanceStdList').html(txt);
-                    */
+                    
                 }
             );
             
@@ -1691,12 +1687,15 @@
 
         saveNow:function(classid)
         {
-            var bits = $('#bits').attr('class');
-            this.query = bits+"lib/classes/stdclass.php?action=saveAttendance&filter=1";
+            
+            //var bits = $('#bits').attr('class');
+            //this.query = bits+"lib/classes/stdclass.php?action=saveAttendance&filter=1";
+            this.query = "/classes/ajax?action=saveAttendance&filter=1";
 
             var d = new Date();
             var date = $('#attendanceDate').val();
 
+            
             var studentsarray = [];
             $("button.attstatusbtn").each(function()
                 {
@@ -1717,6 +1716,7 @@
                 }
             );
 
+            //alert('here');
             var termid = $("#selectEOTRepTerm option:selected").val();
             
 
@@ -1726,19 +1726,26 @@
                         ,students:JSON.stringify(studentsarray)
                     };
 
-            //alert(this.query);
+            alert(this.query);
 
-            $.post(this.query,
-                this.object,
-                function (data, status) {
-                    //alert("My Data: " + data + "\nStatus: " + status);
-                    alert("Today's Attendance Register was successfully submitted");
-                    
-                    
-                    
-                   
+            $.ajaxSetup({
+                headers: {
+                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            );
+             });
+
+             $.ajax({
+                type: "POST",
+                url: this.query,
+                data: this.data,
+                success: function (data) {
+                   alert(data);
+                },
+                error: function (data, textStatus, errorThrown) {
+                    alert('Error'+errorThrown);
+             
+                },
+            });
             
         }
     };
@@ -1964,8 +1971,9 @@
 			
 			$.get(this.query,
                 function (data, status) {
-                    alert(" My Data: " + data + "\nStatus: " + status);
-                    r = JSON.parse(data); 
+                    //alert(" My Data: " + data + "\nStatus: " + status);
+                    //r = JSON.parse(data); 
+                    r = data; 
                     //alert(r);
                     var txt = ""; var x=0; var ctr = 0;
                     
@@ -1977,7 +1985,7 @@
                     for (x in r){
                         
                         txt += "<tr class='smstdrow' stdid='"+r[x].studentid+"'>";
-                        txt += "<td>"+r[x].studentid+r[x].stdname+"</td>";
+                        txt += "<td>"+r[x].stdname+"</td>";
                         
                         var i;
                         var statuses = r[x].takingstatuses.split(",");
@@ -2024,23 +2032,50 @@
                 students.push(student);
                
             });
+
+            //alert(students);
+            $.ajaxSetup({
+                headers: {
+                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+             });
+
+             this.query = "/getdata";
+             var termid = $("#selectStdSubjectTerm option:selected").val();
+
+             
+
+             $.ajax({
+                type:'POST',
+                url:this.query,
+                data:{students:students},
+                success:function(data) {
+                   //alert('Success: '+data.msg);
+                   alert('Success: '+data);
+                },
+                error: function (data) {
+                   alert('Error:'+data);
+                   var errors = msg.responseJSON;
+                }
+             });
             
-            var termid = $("#selectStdSubjectTerm option:selected").val();
             
-            var bits = $('#bits').attr('class');
-		    this.query = bits+"lib/classes/stdclass.php?action=savestudentsubjects&termid="+termid;
-			this.object = {
-				students:students
-			};
+            
+            //var bits = $('#bits').attr('class');
+		    //this.query = bits+"lib/classes/stdclass.php?action=savestudentsubjects&termid="+termid;
+		    
+			//this.object = {
+			//	students:students
+			//};
 			
 			//alert(this.query);
 			
-			$.post(this.query,
+			/*$.post(this.query,
                 this.object,
                 function (data, status) {
                     alert(" My Data: " + data + "\nStatus: " + status);
                     location.reload();
-                });
+                });*/
 		},
 		loadSubjectStdsEditForm: function()
 		{

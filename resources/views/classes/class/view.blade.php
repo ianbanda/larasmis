@@ -148,7 +148,7 @@
                 
                     
             </div>
-            <div id='classid' class='{classid}'></div>
+            <div id='classid' class='{{$class->ID}}'></div>
             
         </h1>
     </div>
@@ -502,18 +502,25 @@
                 <div class="">
                     <ul id="classAttendanceStdList" class="w3-ul">
                         <!-- START classAttendanceStdList -->
+                        @forelse($classAttendanceStdList as $cta)
                         <li class="w3-row">
                             <div class="w3-left w3-small">
-                            {stdname}
+                            {{$cta->stdname}}
                             </div>
-                            <button id="{user_id}" class="w3-btn attstatusbtn w3-right w3-margin-left {attstatuscolor} w3-card w3-round w3-small" onclick="attendance.statusBTN(this)">{attstatus}</button>
+                            <button id="{{$cta->user_id}}" class="w3-btn attstatusbtn w3-right w3-margin-left {{$cta->attstatuscolor}} w3-card w3-round w3-small" onclick="attendance.statusBTN(this)">{{$cta->attstatus}}</button>
                         </li>
+                        @empty
+
+                        @endforelse
+
+                        
                         <!-- END classAttendanceStdList -->
                     </ul>
                 </div>
                 <div class="w3-row w3-margin-top">
+                    
                     <button class="w3-btn w3-right w3-margin-top w3-card w3-round bluetheme w3-small"
-                        onclick="attendance.saveNow('{classid}')">
+                        onclick="attendance.saveNow('{{$class->ID}}')">
                         <b>Save Now</b>
                     </button>
                 </div>
@@ -562,8 +569,7 @@
                     </div>
                 </div>
                 <div class="w3-row w3-margin-top">
-                    <button class="w3-btn w3-right w3-margin-top w3-card w3-round bluetheme w3-small"
-                        onclick="attendance.saveNow('{classid}')">
+                    <button class="w3-btn w3-right w3-margin-top w3-card w3-round bluetheme w3-small" onclick="alert()">
                         <b>Save Now</b>
                     </button>
                 </div>
@@ -600,9 +606,12 @@
                         <b class="bluefont">
                             <select name="selectDestClass" id="selectDestClass" class="w3-select">
                                 <!-- START otherclasslist -->
-                                <option class="w3-row" value="{ID}">
-                                    {name}
-                                </option>
+                                @foreach ($gotoclasslist as $gtc)
+                                    <option class="w3-row" value="{{$gtc->ID}}">
+                                        {{$gtc->name}}
+                                    </option>
+                                @endforeach
+                                
                                 <!-- END otherclasslist -->
                             </select>
                         </b>

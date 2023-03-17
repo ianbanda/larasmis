@@ -309,19 +309,10 @@ class StdClass extends Model
         return $this->type;
     }
 
-    public function getStudentAttendanceList() {
+    public function getStudentAttendanceList($for,$date) {
         $sql = "";
-        $for = $_POST['for'];
-        $classid = $_POST['classid'];
-        $date = "";
-        if(isset($_POST['date'])&&intval($_POST['date'])>0){
-            $date = $_POST['date'];
-            $date = "'$date'";
-        }
-        else
-        {
-            $date = "CURRENT_DATE()";
-        }
+        $classid = $this->id;
+        
 
         $attstatus = "(SELECT attstatus FROM studentattendance WHERE studentid=p.user_id AND classid='$classid' AND attdate=$date LIMIT 1)";
         $timein = "(SELECT timein FROM studentattendance WHERE studentid=p.user_id AND classid='$classid' AND attdate=$date LIMIT 1)";
@@ -366,12 +357,12 @@ class StdClass extends Model
 
         $outp = DB::select($sql);
 
-        if ($this->ajax) {
+        /*if ($this->ajax) {
             echo json_encode($outp);
         }else
-        {
+        {*/
             return $outp;
-        }
+        //}
     }
 
     public function getStudentSubjects()
@@ -387,9 +378,26 @@ class StdClass extends Model
         FROM studentsinclass sic, profile p WHERE p.user_id=sic.studentid AND sic.classid='$classid'
         ORDER BY (SELECT ROUND(IFNULL(SUM(scoreValue)/IFNULL((SELECT COUNT(*) FROM std_subjects ss WHERE ss.studentid=sic.studentid LIMIT 1),0),0)) FROM scores sc WHERE sc.studentid=sic.studentid AND (SELECT papertype FROM papers WHERE ID=sc.paperid LIMIT 1)!=2 LIMIT 1) DESC
         ";
+
+        /*
+        $sql = "SELECT sic.studentid
+        , (CONCAT_WS(' ',p.firstname,p.othernames,p.surname)) AS stdname
+        ,(SELECT GROUP_CONCAT(IF((SELECT COUNT(*) FROM std_subjects ss WHERE ss.studentid=sic.studentid AND ss.subjectid=cs.subjectid)>0,'T','D')) FROM classsubjects cs WHERE cs.classid='$classid') AS takingstatuses
+        ,(SELECT GROUP_CONCAT(cs.subjectid) FROM classsubjects cs WHERE cs.classid='$classid') AS thesubjects
+        FROM studentsinclass sic, profile p WHERE p.user_id=sic.studentid AND sic.classid='$classid'
+        ORDER BY (SELECT ROUND(IFNULL(SUM(scoreValue)/IFNULL((SELECT COUNT(*) FROM std_subjects ss WHERE ss.studentid=sic.studentid LIMIT 1),0),0)) FROM scores sc WHERE sc.studentid=sic.studentid AND (SELECT papertype FROM papers WHERE ID=sc.paperid LIMIT 1)!=2 LIMIT 1) DESC
+        ";
+        */
         
+        return DB::select($sql);
+        //return $sql;
+        //return DB::select(DB::raw($sql));
+        /*$data = DB::table('raw_plans')
+            ->select(DB::raw("group_concat(raw_plans.name)"))
+            ->groupBy('flag')
+            ->where('assignement_id',1)
+            ->get();*/
         //return DB::select($sql);
-        return $sql;
             
     }
     public function getOtherClasses($classid=0) {

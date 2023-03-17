@@ -4,6 +4,7 @@ use App\Http\Controllers\Authentication;
 use App\Http\Controllers\Classes;
 use App\Http\Controllers\Students;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 /*
@@ -67,7 +68,7 @@ use App\Http\Controllers\ClassesController;
 Route::controller(ClassesController::class)->group(function () {
     Route::get('/classes', 'index');
     Route::get('/classes/view', 'viewClass');
-    Route::get('/classes/ajax', 'ajax');
+    Route::any('/classes/ajax', 'ajax');
 });
 
 use App\Models\StdClass;
@@ -92,4 +93,39 @@ Route::GET('/getmsg', function (Request $request) {
         'state' => 'CA',
     ]";*/
     
+});
+
+Route::post('/getdata',function(Request $request){
+    $students = $request['students'];
+    //$students = $_POST['students'];
+
+    $sql = 1;
+    $termid=1;
+    
+    if(is_array($students))
+    {
+        foreach ($students as $std) {
+            $stdid = $std[0];
+                
+            if(is_array($std[1])){
+                $sql = "DELETE FROM std_subjects WHERE studentid='$stdid' AND termid=$termid";
+                $result = DB::delete($sql);
+                foreach($std[1] as $subid)
+                {
+                    $sql = "INSERT INTO std_subjects (studentid,subjectid,termid) VALUES ('$stdid','$subid',$termid)";
+                    $result = DB::insert($sql);
+                }
+            }else
+            {
+                $subid = $std[1];
+                $sql = "DELETE FROM std_subjects WHERE studentid='$stdid'  AND subjectid='$subid' AND termid=$termid";
+                $result = DB::delete($sql);
+                $sql = "INSERT INTO std_subjects (studentid,subjectid,termid) VALUES ('$stdid','$subid',$termid)";
+                    $result = DB::insert($sql);
+            }
+        }
+    }
+    
+
+    return $sql;
 });
