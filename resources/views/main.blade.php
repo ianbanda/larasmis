@@ -22,7 +22,7 @@
             @yield('content')
         </div>
             @section('footerScripts')
-            <script src="app.js"></script>
+            <!--<script src="app.js"></script>-->
             <script  type="text/javascript" src="{{asset('js/custom.js')}}"></script>
         @show
     </body>

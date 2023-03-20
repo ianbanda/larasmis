@@ -57,7 +57,7 @@ class Attendances extends Model
         return $cache;
     }
 
-	public function saveAttendance($date, $classid, $recorder, $post,$lessonid=0) 
+	public function saveAttendance($date, $classid, $recorder, $students,$lessonid=0) 
 	{
 		$atttype = "Daily";
 		if(intval($lessonid)>0){
@@ -66,20 +66,19 @@ class Attendances extends Model
         $sql = "INSERT INTO studentattendance (recordedby,studentid, classid,periodid, attstatus, atttype, attdate,timein) VALUES ";
 		$values = "";
 		
-		$usql = "UPDATE studentattendance SET ";
-
 		$ctr = 0;
 		$v = "straight";
 		
 		//print_r($post);
-		if(intval($recorder)>0&&!isset($post['students']))
+		if(intval($recorder)>0&&!isset($students))
 		{
-			$array = json_decode($post[$recorder]);
+			$v = 'here';
+			//$array = json_decode($post[$recorder]);
 		}
 		else
 		{
-			$array = json_decode($post['students']);
-			$v = 'here';
+			$array = json_decode($students);
+			//$v = $array;
 		}
 				
 		if(is_array($array))
@@ -87,8 +86,11 @@ class Attendances extends Model
 			
 			for($i=0;$i<sizeof($array);$i++)
 			{
+				
 				$ctr++;
 				$sca = $array[$i];
+				$v = $sca;
+				//$sca = json_decode($array[$i]);
 				//echo $sca->date."\n";
 				if($i>0){
 					$values .= ",";
@@ -114,7 +116,8 @@ class Attendances extends Model
 				}
 				$values = " ('".$recorder."','".$sca->studentid."','".$sca->classid."','".$periodid."','".$sca->attstatus."','$atttype','".$datevalue."','".$timein."')";
 				$update = " ON DUPLICATE KEY UPDATE attstatus='".$sca->attstatus."'";
-				$s = $sql . $values . $update;
+				//$s = $sql . $values . $update;
+				$s = $sql . $values ;
 				
 				
 				$del = "DELETE FROM studentattendance WHERE classid='"
@@ -125,9 +128,32 @@ class Attendances extends Model
 					.$sca->classid."' AND periodid='".$sca->periodid."' AND studentid='".$sca->studentid."' AND attdate='".$datevalue."' AND atttype='Daily'";
 				}
 
-				DB::delete($del);
-				DB::insert($s);
+				//(recordedby,studentid, classid,periodid, attstatus, atttype, attdate,timein)
+				$insertArray = array(
+										"recordedby"=>$recorder
+										,"studentid"=>$sca->studentid
+										,"classid"=>$sca->classid
+										,"periodid"=>$periodid
+										,"attstatus"=>$sca->attstatus
+										,"atttype"=>$atttype
+										,"attdate"=>$datevalue
+										,"timein"=>$timein
+									);
 				
+				try {
+					$v = $del;
+					DB::delete($del);
+
+					
+					//DB::insert($s);
+					DB::table('studentattendance')->insert($insertArray);
+					
+				} catch(\Illuminate\Database\QueryException $ex){ 
+					//dd($ex->getMessage()); 
+					$v = $ex->getMessage();
+					// Note any method of class PDOException can be called on $ex.
+				}
+				//DB::
 
 				$flagbody = "You were recorded as ";
 				switch($sca->attstatus)
@@ -151,9 +177,15 @@ class Attendances extends Model
 
 				$flagsql = "INSERT INTO flags (flaggableid, title, body, notified, flagtype, flagtime, source, flagabout) 
 										VALUES ('0','Class attendance registration ".$datevalue."','$flagbody'
-										,'".$sca->studentid."','5','','',LAST_INSERT_ID())";
+										,'".$sca->studentid."','5','',".intval('').",LAST_INSERT_ID())";
 				//$this->registry->getObject('db')->executeQuery($flagsql);
-				DB::insert($flagsql);
+				try{
+					DB::insert($flagsql);
+				} catch(\Illuminate\Database\QueryException $ex){ 
+					//dd($ex->getMessage()); 
+					$v = $ex->getMessage();
+					// Note any method of class PDOException can be called on $ex.
+				}
 				
 			}
 			

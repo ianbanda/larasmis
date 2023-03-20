@@ -96,11 +96,11 @@
                        
                         <div class="w3-row w3-small" id="tabsubbuttons">
                             <button class="students w3-btn w3-left w3-large w3-margin w3-card w3-round w3-border w3-white" onclick="reports.generateNow('classfile')">
-                                <img src="{bits}Resources/Images/export_pdf.png" class="w3-margin-right" style="width:25px"/>
+                                <img src="Resources/Images/export_pdf.png" class="w3-margin-right" style="width:25px"/>
                                 Student List
                             </button>
                             <button class="overall w3-btn w3-left w3-large w3-margin w3-card w3-round w3-border w3-white" style="display:none" onclick="reports.generateNow('classtestsummary')">
-                                <img src="{bits}Resources/Images/export_pdf.png" class="w3-margin-right" style="width:25px"/>
+                                <img src="{{asset('Resources/Images/export_pdf.png')}}" class="w3-margin-right" style="width:25px"/>
                                 Generate Summary
                             </button>
                         </div>

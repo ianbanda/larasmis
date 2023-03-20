@@ -1217,7 +1217,7 @@
         
         generateNow:function(name)
         {
-            alert(name);
+            
             var bits = $('#bits').attr('class');
             switch(name)
             {
@@ -1250,6 +1250,7 @@
                     break;
                 case "classfile":
                     this.query = bits+"lib/reports/reports.php?action=generateNow&filter=1&name="+name;
+                    this.query = "/reports/ajax?action=generateclassfilereport&extra=print";
                     var studentsarray = [];
                     $("#studentlist li").each(function()
                         {
@@ -1337,18 +1338,21 @@
                     break;
             }
 
+            $.ajaxSetup({
+                headers: {
+                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+             });
+            alert(name);
             $.post(this.query,
                 this.object,
                 function (data, status) {
-                    //alert("My Data: " + data + "\nStatus: " + status);
-                    var w = window.open(data);
+                    alert("My Data: " + data + "\nStatus: " + status);
+                    /*var w = window.open(data);
                     
                     $(w.document.body).html(data);
                     w.reload();
-                    
-                    
-                    //alert("My Data: " + data + "\nStatus: " + status);
-                   
+                    */                   
                 }
             );
             
@@ -1650,7 +1654,7 @@
                 this.object,
                 function (data, status) {
                     alert("My Data:" + data + "\nStatus: " + status);
-                    //result = JSON.parse(data); 
+                    result = JSON.parse(data); 
                     //alert(result);
                     var txt = ""; var x; var ctr = 0;
                     for (x in result){
@@ -1716,17 +1720,9 @@
                 }
             );
 
-            //alert('here');
             var termid = $("#selectEOTRepTerm option:selected").val();
-            
 
-            this.object = {
-                        classid:classid
-                        ,termid:termid
-                        ,students:JSON.stringify(studentsarray)
-                    };
-
-            alert(this.query);
+            this.object = {classid:classid,termid:termid,students:JSON.stringify(studentsarray)};
 
             $.ajaxSetup({
                 headers: {
@@ -1737,9 +1733,10 @@
              $.ajax({
                 type: "POST",
                 url: this.query,
-                data: this.data,
+                data: this.object,
                 success: function (data) {
-                   alert(data);
+                    console.log(data);
+                    alert(data);
                 },
                 error: function (data, textStatus, errorThrown) {
                     alert('Error'+errorThrown);

@@ -105,7 +105,8 @@ class ClassesController extends Controller
                 $uid = 1;
                 $date = "";
                 //print_r($_POST);
-                $return = $attendance->saveAttendance($date, $request['classid'], $uid, $request);
+                //$return = $request['students'];
+                $return = $attendance->saveAttendance($date, $request['classid'], $uid, $request['students']);
                 break;
         }
         

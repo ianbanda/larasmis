@@ -40,7 +40,8 @@ Route::get('dashboard', 'App\Http\Controllers\DashboardController@index', 'dashb
 
 use App\Http\Controllers\ReportsController;
 Route::controller(ReportsController::class)->group(function () {
-    Route::get('/reports', 'index');
+    Route::any('/reports', 'index');
+    Route::any('/reports/ajax', 'ajax');
 });
 
 use App\Http\Controllers\AcademicsController;
@@ -69,6 +70,11 @@ Route::controller(ClassesController::class)->group(function () {
     Route::get('/classes', 'index');
     Route::get('/classes/view', 'viewClass');
     Route::any('/classes/ajax', 'ajax');
+});
+use App\Http\Controllers\PdfController;
+Route::controller(PdfController::class)->group(function () {
+    Route::get('/pdf', 'index');
+    Route::any('/pdf/ajax', 'ajax');
 });
 
 use App\Models\StdClass;
