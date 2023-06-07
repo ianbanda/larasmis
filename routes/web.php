@@ -69,6 +69,7 @@ use App\Http\Controllers\ClassesController;
 Route::controller(ClassesController::class)->group(function () {
     Route::get('/classes', 'index');
     Route::get('/classes/view', 'viewClass');
+    Route::get('/classes/classstudents', 'getStudents');
     Route::any('/classes/ajax', 'ajax');
 });
 use App\Http\Controllers\PdfController;

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Papers;
 use App\Models\Attendances;
+use App\Models\Paper;
 use App\Models\StdClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,11 +14,173 @@ class ClassesController extends Controller
 {
     //
      //
-     public function index()
+     public function index(Request $request)
      {
          $results = DB::select('select * from classes');
-         return view('classes.classes',['classes'=>$results]);
+         if( $request->is('api/*')){
+            //write your logic for api call
+            //return response(['classes'=>$results]);
+            $users = [
+                ['userid' => 1, 'name' => 'Alex'],
+                ['userid' => 2, 'name' => 'Jane'],
+            ];
+            //response()->json($users, 200);
+            //return $users;
+            //return response()->json($results, 200);
+            //return "users:".$users;
+            return response()->json(['classes'=>$results]);
+        }else{
+            //write your logic for web call
+            return view('classes.classes',['classes'=>$results]);
+        }
+         //return view('classes.classes',['classes'=>$results]);
      }//
+     public function getStudents(Request $request)
+     {
+        $classid = $request['classid'];
+        $term = 0;
+
+        $terms = new Terms();
+        $termlist = $terms->getTerms();
+
+        $classModel = new StdClass($classid,$term);
+         $classstudents = $classModel->getStudents($classid,$term);
+
+        if( $request->is('api/*')){
+            $classjo = ['classstudents'=>$classstudents];
+            return response()->json($classjo);
+        }
+        
+     }
+
+     public function getHomeworks(Request $request)
+     {
+         $class = DB::select('select * from classes WHERE ID='.$request['classid']);
+ 
+         $classid = $request['classid'];
+         $term = 0;
+
+        $terms = new Terms();
+
+        $date = "";
+        if(isset($_GET['date']))
+            {
+                $date = $_GET['date'];
+            }else{
+                $date = getdate();
+                $day = $date["mday"];
+                if($day<10)
+                {
+                    $day = "0".$day;
+                }
+                $date = $date["year"]."-".$date["mon"]."-".$day;
+            }
+
+         $classModel = new StdClass($classid,$term);
+         $classhomeworks = $classModel->getClassHomeworks();
+
+         if( $request->is('api/*')){
+            $classjo = ['classhomeworks'=>$classhomeworks];
+            return response()->json($classjo);
+            //return response()->json(['classjo'=>$classstudents]);
+        }
+        
+     }
+     public function getExams(Request $request)
+     {
+         //$class = DB::select('select * from classes WHERE ID='.$request['classid']);
+ 
+         $classid = $request['classid'];
+         $term = 0;
+
+        $terms = new Terms();
+
+        $date = "";
+        if(isset($_GET['date']))
+            {
+                $date = $_GET['date'];
+            }else{
+                $date = getdate();
+                $day = $date["mday"];
+                if($day<10)
+                {
+                    $day = "0".$day;
+                }
+                $date = $date["year"]."-".$date["mon"]."-".$day;
+            }
+
+         $classModel = new StdClass($classid,$term);
+         $classexams = $classModel->getClassExams();
+
+         if( $request->is('api/*')){
+            $classjo = ['classexams'=>$classexams];
+            return response()->json($classjo);
+            //return response()->json(['classjo'=>$classstudents]);
+        }
+        
+     }
+
+     public function getSubjects(Request $request)
+     { 
+         $classid = $request['classid'];
+         $term = 0;
+        $date = "";
+        if(isset($_GET['date']))
+            {
+                $date = $_GET['date'];
+            }else{
+                $date = getdate();
+                $day = $date["mday"];
+                if($day<10)
+                {
+                    $day = "0".$day;
+                }
+                $date = $date["year"]."-".$date["mon"]."-".$day;
+            }
+
+        $classModel = new StdClass($classid,$term);
+        $classsubjects = $classModel->getSubjects($classid,$term);
+        
+
+        if( $request->is('api/*')){
+            $classjo = ['classsubjects'=>$classsubjects];
+            return response()->json($classjo);
+        }
+     }
+     public function getAttendance(Request $request)
+     {
+         $class = DB::select('select * from classes WHERE ID='.$request['classid']);
+ 
+         $classid = $request['classid'];
+         $term = 0;
+
+        $terms = new Terms();
+        $termlist = $terms->getTerms();
+
+        $attendances = new Attendances();
+        $date = "";
+        if(isset($_GET['date']))
+            {
+                $date = $_GET['date'];
+            }else{
+                $date = getdate();
+                $day = $date["mday"];
+                if($day<10)
+                {
+                    $day = "0".$day;
+                }
+                $date = $date["year"]."-".$date["mon"]."-".$day;
+            }
+        $classAttendanceStdList = $attendances->getStudents($date,$classid,'class');
+
+         $classModel = new StdClass($classid,$term);
+        
+         if( $request->is('api/*')){
+            $classjo = ['classAttendanceStdList'=>$classAttendanceStdList];
+            return response()->json($classjo);
+            //return response()->json(['classjo'=>$classstudents]);
+        }
+     }
      public function viewClass(Request $request)
      {
          $class = DB::select('select * from classes WHERE ID='.$request['classid']);
@@ -49,8 +213,30 @@ class ClassesController extends Controller
          $formteachers = $classModel->getFormTeachers($classid,$term);
          $nonformteachers = $classModel->getNonFormTeachers($classid,$term);
          $gotoclasslist = $classModel->getOtherClasses($classid);
-         return view('classes.class.view'
-             ,[
+         $classhomeworks = $classModel->getClassHomeworks();
+
+         if( $request->is('api/*')){
+            $classjo =
+                ['classjo'=>
+                    [
+                        ['class'=>$class[0]]
+                        ,['gotoclasslist'=>$gotoclasslist]
+                        ,['classstudents'=>$classstudents]
+                        ,['classAttendanceStdList'=>$classAttendanceStdList]
+                        ,['classsubjects'=>$classsubjects]
+                        ,['classhomeworks'=>$classhomeworks]
+                        ,['formteachers'=>$formteachers]
+                        ,['nonformteachers'=>$nonformteachers]
+                        ,['termslist'=>$termlist]
+                    ]
+                ];
+            return response()->json($classjo);
+            //return response()->json(['classjo'=>$classstudents]);
+        }
+        else{
+            return view(
+                'classes.class.view',
+                [
                 'class'=>$class[0]
                 ,'gotoclasslist'=>$gotoclasslist
                 ,'classstudents'=>$classstudents
@@ -59,8 +245,9 @@ class ClassesController extends Controller
                 ,'formteachers'=>$formteachers
                 ,'nonformteachers'=>$nonformteachers
                 ,'termslist'=>$termlist
-             ]
-         );
+                ]
+            );
+        }
      }
 
      public function ajax(Request $request)
@@ -149,7 +336,6 @@ class ClassesController extends Controller
          $classstudents = DB::select($sql);
          return $classstudents;
      }    
-     
      public function getClassSubjects($classid,$term)
      {
          if(intval($term)<=0)
@@ -167,5 +353,21 @@ class ClassesController extends Controller
          FROM classsubjects WHERE classid='" . $classid . "' AND $termq";
          $subjects = DB::select($sql);
          return $subjects;
+     }
+
+
+     public function saveAttendance()
+     {
+        $model = new Attendances();
+        $post = $_REQUEST;
+        //$paperid = $post['paperid'];
+
+        $scores = json_decode($post["attendances"]);
+        //saveAttendance($date, $classid, $recorder, $students,$lessonid=0)
+        $model->saveAttendance('01-01-2002',1,1,$post["attendances"]);
+        $str = "hey";
+        
+        return $str;
+        
      }
 }

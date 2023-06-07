@@ -90,13 +90,12 @@ class Attendances extends Model
 				$ctr++;
 				$sca = $array[$i];
 				$v = $sca;
-				//$sca = json_decode($array[$i]);
-				//echo $sca->date."\n";
+
 				if($i>0){
 					$values .= ",";
 				}
 
-				$datevalue  = $sca->date;
+				$datevalue  = $_REQUEST['date'];
 
 				if($datevalue!=0)
 				{

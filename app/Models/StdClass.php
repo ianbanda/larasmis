@@ -175,7 +175,49 @@ class StdClass extends Model
         $sql = "SELECT *
 		, (SELECT name FROM subjects WHERE ID=subjectid LIMIT 1) AS name 
 		, (SELECT abbr FROM subjects WHERE ID=subjectid LIMIT 1) AS abbr 
+		, (SELECT (SELECT CONCAT_WS(' ',firstname,othernames,surname) FROM profile WHERE user_id = ts.teacherid LIMIT 1) FROM teachersubjects ts WHERE ts.subjectid=cs.subjectid AND ts.classid=cs.subjectid LIMIT 1) AS taughtby 
+		, (1) AS teacherid 
+		FROM classsubjects cs WHERE classid='" . $this->id . "'";
+        $cache = DB::select($sql);
+        return $cache;
+    }
+
+    /**
+     * Get a list of topics assigned to this group ( we could paginate this if we wanted to later)
+     * @return int (database cache)
+     */
+    public function getClassHomeworks() {
+        /*$sql = "SELECT *
+		, (SELECT name FROM subjects WHERE ID=subjectid LIMIT 1) AS name 
+		, (SELECT abbr FROM subjects WHERE ID=subjectid LIMIT 1) AS abbr 
 		FROM classsubjects WHERE classid='" . $this->id . "'";
+        */
+        $sql = "SELECT 
+                ca.*, 
+                pp.*, 
+                (SELECT name FROM classes WHERE ID=ca.classid LIMIT 1) AS classname
+                FROM class_assignments ca, papers pp WHERE pp.ID=ca.paperid AND ca.classid='" . $this->id . "'";
+        $cache = DB::select($sql);
+        return $cache;
+    }
+
+    /**
+     * Get a list of topics assigned to this group ( we could paginate this if we wanted to later)
+     * @return int (database cache)
+     */
+    public function getClassExams() {
+        /*$sql = "SELECT *
+		, (SELECT name FROM subjects WHERE ID=subjectid LIMIT 1) AS name 
+		, (SELECT abbr FROM subjects WHERE ID=subjectid LIMIT 1) AS abbr 
+		FROM classsubjects WHERE classid='" . $this->id . "'";
+        */
+        $sql = "SELECT 
+                ca.*, 
+                pp.*, 
+                sub.*,
+                (SELECT name FROM classes WHERE ID=ca.classid LIMIT 1) AS classname,
+                (SELECT name FROM papertypes WHERE ID=pp.papertype LIMIT 1) AS papertypename
+                FROM class_exam_papers ca, papers pp, subjects sub WHERE pp.ID=ca.paperid AND sub.ID=(SELECT subjectid FROM papers WHERE ID=ca.paperid LIMIT 1) AND ca.classid='" . $this->id . "'";
         $cache = DB::select($sql);
         return $cache;
     }

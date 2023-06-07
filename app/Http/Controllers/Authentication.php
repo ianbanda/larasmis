@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Users;
 use Illuminate\Http\Request;
 use Hash;
 use Session;
@@ -20,18 +21,52 @@ class Authentication extends Controller
 
     public function login(Request $request)
     {
+
         $request->validate([
-            'auth_user' => 'required',
-            'auth_pass' => 'required',
+            'username' => 'required',
+            'password' => 'required',
         ]);
-   
-        $credentials = $request->only('email', 'password');
+
+        //return 'logging in';
+        $credentials = $request->only('username', 'password');
         if (Auth::attempt($credentials)) {
-            return redirect()->intended('dashboard')
-                        ->withSuccess('Signed in');
+            if($request->is('api/*')) {
+                $u = Auth::user();
+                $users = new Users();
+                $data = $users->getUserProfile($u['ID']);
+
+                $jsonObject = "{user:{";
+                //$this->jsonObject = "{\"user\":{";
+                
+                $data = $data[0];
+                /*foreach ($data as $field => $v) {
+                    
+                    //$this->jsonObject .= $field.":".$data.", ";
+                    $jsonObject .= "\"".$field."\":\"".$v."\", ";
+                    
+                }
+                $jsonObject .= "}}";
+
+                
+
+                //return response()->json($data);
+                return response()->json($jsonObject);
+                //return response()->json("{\"user\":".$data."}");*/
+                return response()->json(['user'=>$data]);
+            } else {
+                return redirect()->intended('dashboard')->withSuccess('Signed in');
+            }
+        } 
+        else
+        {
+            if($request->is('api/*')) {
+                //$classjo = ['classstudents'=>$classstudents];
+                return Hash::make($request['auth_pass']);
+            //return "Signin Error, please try again";
+            } else {
+                return redirect("/authentication/logout")->withSuccess('Login details are not valid');
+            }
         }
-        
-        return redirect("/authentication/logout")->withSuccess('Login details are not valid');
     }
     public function loginScreen()
     {
