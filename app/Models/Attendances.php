@@ -54,12 +54,14 @@ class Attendances extends Model
 		}
 		*/
 		$cache = DB::select($sql);
+		//print_r($cache);
         return $cache;
     }
 
 	public function saveAttendance($date, $classid, $recorder, $students,$lessonid=0) 
 	{
-		$atttype = "Daily";
+		$v = $_POST['students'];
+		$atttype = "class";
 		if(intval($lessonid)>0){
 			$atttype = "Lesson";
 		}
@@ -68,6 +70,8 @@ class Attendances extends Model
 		
 		$ctr = 0;
 		$v = "straight";
+
+		
 		
 		//print_r($post);
 		if(intval($recorder)>0&&!isset($students))
@@ -80,7 +84,8 @@ class Attendances extends Model
 			$array = json_decode($students);
 			//$v = $array;
 		}
-				
+			
+		
 		if(is_array($array))
 		{
 			
@@ -91,11 +96,18 @@ class Attendances extends Model
 				$sca = $array[$i];
 				$v = $sca;
 
+				
 				if($i>0){
 					$values .= ",";
 				}
 
-				$datevalue  = $_REQUEST['date'];
+				
+				$datevalue  = "";
+				$v = $_REQUEST;
+				if(isset($_REQUEST['date'])){
+					$datevalue  = $_REQUEST['date'];
+					$v = $datevalue;
+				}
 
 				if($datevalue!=0)
 				{
@@ -105,6 +117,7 @@ class Attendances extends Model
 				$periodid = "";
 				$timein = "";
 				
+				
 				if($atttype=="Lesson")
 				{
 					$periodid = $sca->periodid;
@@ -113,6 +126,8 @@ class Attendances extends Model
 						$timein = $sca->time;
 					}
 				}
+				
+				
 				$values = " ('".$recorder."','".$sca->studentid."','".$sca->classid."','".$periodid."','".$sca->attstatus."','$atttype','".$datevalue."','".$timein."')";
 				$update = " ON DUPLICATE KEY UPDATE attstatus='".$sca->attstatus."'";
 				//$s = $sql . $values . $update;
@@ -174,6 +189,7 @@ class Attendances extends Model
 						break;
 				}
 
+				
 				$flagsql = "INSERT INTO flags (flaggableid, title, body, notified, flagtype, flagtime, source, flagabout) 
 										VALUES ('0','Class attendance registration ".$datevalue."','$flagbody'
 										,'".$sca->studentid."','5','',".intval('').",LAST_INSERT_ID())";
@@ -186,6 +202,7 @@ class Attendances extends Model
 					// Note any method of class PDOException can be called on $ex.
 				}
 				
+				
 			}
 			
 			if($ctr>0){
@@ -193,11 +210,13 @@ class Attendances extends Model
 				//$this->registry->getObject('db')->executeQuery($sql);
 				//$this->registry->getObject('db')->executeQuery($sql);
 			}
-		
+			
 		
 		}
 
 		//$this->checkLongTermAbsentees();
+
+		
 
 		
 		return $v;

@@ -52,6 +52,9 @@ Route::controller(StudentsController::class)->group(function () {
     Route::get('/students', 'index');
     Route::get('/students/getcontacts', 'getContacts');
     Route::get('/students/getstudentsubjects', 'getStudentSubjects');
+    Route::get('/students/getstudentassignments', 'getStudentAssignments');
+    Route::get('/students/getstudentexams', 'getStudentExams');
+    Route::get('/students/getstudentattendance', 'getStudentAttendance');
     Route::post('/students/savecontact/new', 'saveNewContact');
     //Route::any('/classes/ajax', 'ajax');
 });

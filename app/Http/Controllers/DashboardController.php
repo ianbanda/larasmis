@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class DashboardController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
         
         $cm = new Classes();//Class model inst
@@ -23,7 +23,13 @@ class DashboardController extends Controller
         $tttypemodel = new Timetables();//Timetables model inst
         $tttypes = $tttypemodel->getTypes();//get teacher list
 
-        return view('dashboard'
+        $view = "dashboard";
+        if(isset($request['client'])&&$request['client']=="android")
+        {
+            $view = 'android/dashboard';
+        }
+
+        return view($view
         ,[
             'classes' => $classes
             ,'teachers' => $teachers

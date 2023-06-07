@@ -1650,11 +1650,11 @@
                         ,date:''
                     };
 
-            $.get(this.query,
+            $.post(this.query,
                 this.object,
                 function (data, status) {
                     alert("My Data:" + data + "\nStatus: " + status);
-                    result = JSON.parse(data); 
+                    var result = JSON.parse(data); 
                     //alert(result);
                     var txt = ""; var x; var ctr = 0;
                     for (x in result){
@@ -1698,7 +1698,6 @@
 
             var d = new Date();
             var date = $('#attendanceDate').val();
-
             
             var studentsarray = [];
             $("button.attstatusbtn").each(function()
@@ -1722,13 +1721,15 @@
 
             var termid = $("#selectEOTRepTerm option:selected").val();
 
-            this.object = {classid:classid,termid:termid,students:JSON.stringify(studentsarray)};
+            this.object = {classid:classid,termid:termid,date:date,students:JSON.stringify(studentsarray)};
 
             $.ajaxSetup({
                 headers: {
                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
              });
+
+             //alert(this.object.students);
 
              $.ajax({
                 type: "POST",
@@ -1739,7 +1740,7 @@
                     alert(data);
                 },
                 error: function (data, textStatus, errorThrown) {
-                    alert('Error'+errorThrown);
+                    alert('Error Returned '+errorThrown);
              
                 },
             });
@@ -2297,12 +2298,53 @@
                 });
             txt += "</div>"
             $('#classHWModalCont').html(txt);    
-		},
-		
+		},		
 		loadFormTeacherEditForm:function(purpose)
 		{
 		    document.getElementById('editFormTeachersModal').style.display='block';
-		}
+		},
+        loadClassAttendance:function(classid){
+            var date = $("#attendanceDate").val();
+            //alert(classid);
+            var classid = $("#classid").attr('class');
+			
+			this.query = "/classes/ajax?action=studentattlist&classid="+classid+"&date="+date;
+
+            //$("#tabcontainer").html("<img src='"+bits+"Book.gif' style='width:300px' />");
+			/*$.post(this.query,
+                this.object,
+                function (data, status) {
+                    //alert(data);
+                     //alert("Book");
+                    //alert("My Data: " + data + "\nStatus: " + status);
+                    //r = JSON.parse(data);
+                }
+            );*/
+
+            $.get(this.query, function(data, status){
+                //alert("Data: " + data + "\nStatus: " + status);
+                //r = JSON.parse(data);
+                //alert(r);
+                var txt = "";
+                for(x in data)
+                {
+                    //var stdname = data[x].stdname;
+                    //alert(data[x].stdname);
+                    txt += '<li class="w3-row">'
+                            +'<div class="w3-left w3-small">'
+                            +data[x].stdname
+                            +'</div>'
+                            +'<button id="'+data[x].user_id+'" class="w3-button attstatusbtn w3-right w3-margin-left '+data[x].attstatuscolor+' w3-card w3-round w3-small" onclick="attendance.statusBTN(this)">'+data[x].attstatus+'</button>'
+                            +'</li>';
+                }
+                $("ul#classAttendanceStdList").html(txt);
+              });
+
+            
+            //xhttp.open("GET", this.query);
+            //xhttp.send();
+            
+        }
     };
    
     var summaries = {
@@ -2972,6 +3014,8 @@
     };
     
     $(document).ready(function () {
+
+        //alert('hie');
 
         $pagename = $('#pagename').attr('class');
 

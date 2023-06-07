@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\ContactsController;
 use App\Models\Guardians;
+use App\Models\Students;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,31 @@ class StudentsController extends Controller
         ]);
     }
 
+    public function getStudentAttendance(Request $request)
+        {
+            $studentsModel = new Students();
+            $a = $studentsModel->getStudentAttendance($request['studentid']);
+            return response()->json( [
+                'attendance' => $a
+            ]);
+        }
+    public function getStudentAssignments(Request $request)
+        {
+            $studentsModel = new Students();
+            $assigs = $studentsModel->getStudentAssignments($request['studentid']);
+            return response()->json( [
+                'homeworks' => $assigs
+            ]);
+        }
+
+    public function getStudentExams(Request $request)
+        {
+            $studentsModel = new Students();
+            $assigs = $studentsModel->getStudentExams($request['studentid']);
+            return response()->json( [
+                'exams' => $assigs
+            ]);
+        }
     public function getStudentSubjects(Request $request)
         {
             $subjects = array(

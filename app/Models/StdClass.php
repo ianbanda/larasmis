@@ -194,8 +194,10 @@ class StdClass extends Model
         */
         $sql = "SELECT 
                 ca.*, 
-                pp.*, 
-                (SELECT name FROM classes WHERE ID=ca.classid LIMIT 1) AS classname
+                pp.* 
+                ,(SELECT (GROUP_CONCAT(DISTINCT(classid))) AS classlist FROM class_assignments WHERE paperid=ca.paperid) AS classidlist
+                ,(SELECT GROUP_CONCAT(DISTINCT(SELECT abbr FROM classes WHERE ID=classid LIMIT 1)) FROM class_assignments WHERE paperid=ca.paperid) AS classabbrlist
+                ,(SELECT name FROM classes WHERE ID=ca.classid LIMIT 1) AS classname
                 FROM class_assignments ca, papers pp WHERE pp.ID=ca.paperid AND ca.classid='" . $this->id . "'";
         $cache = DB::select($sql);
         return $cache;
@@ -217,6 +219,8 @@ class StdClass extends Model
                 sub.*,
                 (SELECT name FROM classes WHERE ID=ca.classid LIMIT 1) AS classname,
                 (SELECT name FROM papertypes WHERE ID=pp.papertype LIMIT 1) AS papertypename
+                ,(SELECT (GROUP_CONCAT(DISTINCT(classid))) AS classlist FROM class_exam_papers WHERE paperid=ca.paperid) AS classidlist
+                ,(SELECT GROUP_CONCAT(DISTINCT(SELECT abbr FROM classes WHERE ID=classid LIMIT 1)) FROM class_exam_papers WHERE paperid=ca.paperid) AS classabbrlist
                 FROM class_exam_papers ca, papers pp, subjects sub WHERE pp.ID=ca.paperid AND sub.ID=(SELECT subjectid FROM papers WHERE ID=ca.paperid LIMIT 1) AND ca.classid='" . $this->id . "'";
         $cache = DB::select($sql);
         return $cache;
@@ -241,27 +245,38 @@ class StdClass extends Model
         $termq = " termid=$term";
         
 		if(intval($this->id)>0){
-			$sql = "SELECT sic.*,p.* "
-                . ", (SELECT CONCAT_WS(' ',firstname,othernames,surname) FROM profile WHERE user_id=sic.studentid LIMIT 1) AS stdname"
-                . ", (studentid) AS studentid"
-                . ", (SELECT username FROM users WHERE ID=p.user_id LIMIT 1) AS stdcode"
-				. ", (
+			$sql = "SELECT sic.*,p.* 
+                , (SELECT CONCAT_WS(' ',firstname,othernames,surname) FROM profile WHERE user_id=sic.studentid LIMIT 1) AS stdname
+                , (studentid) AS studentid
+                , (SELECT username FROM users WHERE ID=p.user_id LIMIT 1) AS stdcode
+				, (
 						SELECT 
 							GROUP_CONCAT((SELECT abbr FROM subjects WHERE ID=ss.subjectid LIMIT 1),' ') 
 						FROM std_subjects ss WHERE ss.studentid=sic.studentid AND $termq LIMIT 1
-					 ) AS subjectstaken"
-				. ", (
+					 ) AS subjectstaken
+				 , (
 						SELECT 
 							GROUP_CONCAT((SELECT id FROM subjects WHERE ID=ss.subjectid LIMIT 1),'') 
 						FROM std_subjects ss WHERE ss.studentid=sic.studentid AND $termq LIMIT 1
-					 ) AS subjects"
-				. ", (
+					 ) AS subjects
+				 , (
 						YEAR(CURRENT_DATE) 
 						- 
 						YEAR( (SELECT user_dob FROM profile WHERE user_id=sic.studentid LIMIT 1))
-					 ) AS age"
-                . ", (SELECT GROUP_CONCAT(attstatus SEPARATOR ', ') FROM studentattendance WHERE studentid=p.user_id GROUP BY studentid) AS atthist"
-                . " FROM studentsinclass sic, profile p WHERE p.user_id=sic.studentid AND classID='" . $this->id . "' AND $termq";
+					 ) AS age
+                   ,c.phone1
+                   ,c.phone2
+                   ,c.email1
+                   ,c.email2
+                   , (SELECT GROUP_CONCAT(attstatus SEPARATOR ', ') FROM studentattendance WHERE studentid=p.user_id GROUP BY studentid) AS atthist
+                  FROM studentsinclass sic, profile p, contacts c WHERE p.user_id=sic.studentid  AND c.ID=p.contactid
+                  AND classID='" . $this->id . "' AND $termq";
+
+                  /*
+                  , IFNULL(p.firstname,c.firstname) AS firstname
+                   , IFNULL(p.othernames,c.othernames) AS othernames
+                   , IFNULL(p.surname,c.surname) AS surname
+                  */
         }
 		else{
 			$sql = "SELECT sic.*,p.* "
@@ -379,6 +394,7 @@ class StdClass extends Model
                 . ", ($btncolor) AS btnbg"
                 . ", IFNULL($atthiststr,'') AS atthist"
                 . ", IFNULL($attstatus,'P') AS attstatus"
+                . ", IFNULL($btncolor,'present') AS attstatuscolor"
                 . ", IFNULL($timein,'0:00') AS timein"
                 . " FROM studentsinclass sic, profile p WHERE p.user_id=sic.studentid AND classID='" . $classid . "'";
         

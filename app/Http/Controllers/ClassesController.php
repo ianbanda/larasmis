@@ -16,24 +16,48 @@ class ClassesController extends Controller
      //
      public function index(Request $request)
      {
-         $results = DB::select('select * from classes');
-         if( $request->is('api/*')){
-            //write your logic for api call
-            //return response(['classes'=>$results]);
-            $users = [
-                ['userid' => 1, 'name' => 'Alex'],
-                ['userid' => 2, 'name' => 'Jane'],
-            ];
-            //response()->json($users, 200);
-            //return $users;
-            //return response()->json($results, 200);
-            //return "users:".$users;
-            return response()->json(['classes'=>$results]);
-        }else{
-            //write your logic for web call
-            return view('classes.classes',['classes'=>$results]);
+        $sql = "SELECT *"
+                . ", (SELECT COUNT(studentid) FROM studentsinclass WHERE classID=ID LIMIT 1) AS numofstudents"
+                . ", (
+						SELECT 
+							GROUP_CONCAT((SELECT abbr FROM subjects WHERE ID=subjectid LIMIT 1),' ') 
+						FROM classsubjects WHERE classid=cl.ID LIMIT 1
+					 ) AS subjects"
+                . ", (SELECT COUNT(*) FROM classteachers WHERE classid=ID LIMIT 1) AS numofteachers"
+                . ", (SELECT COUNT(*) FROM studentsinclass WHERE classID=cl.ID LIMIT 1) AS numonroll"
+                . ", (SELECT COUNT(*) FROM studentsinclass sic WHERE classID=cl.ID AND (SELECT gender FROM profile WHERE user_id=sic.studentid LIMIT 1)='MALE' LIMIT 1) AS numofboys"
+                . ", (SELECT COUNT(*) FROM studentsinclass sic WHERE classID=cl.ID AND (SELECT gender FROM profile WHERE user_id=sic.studentid LIMIT 1)='FEMALE' LIMIT 1) AS numofgirls"
+                . ", (SELECT name FROM terms WHERE ID=term LIMIT 1) AS termname"
+                . ", (ID) AS classid"
+                . " FROM classes cl";
+        $results = DB::select($sql);
+        $view = "classes";
+        if(isset($request['client'])&&$request['client']=="android")
+        {
+            $view = 'android/classes';
+            return view($view,['classes'=>$results]);
         }
-         //return view('classes.classes',['classes'=>$results]);
+        else
+        {
+            if( $request->is('api/*')){
+                //write your logic for api call
+                //return response(['classes'=>$results]);
+                $users = [
+                    ['userid' => 1, 'name' => 'Alex'],
+                    ['userid' => 2, 'name' => 'Jane'],
+                ];
+                //response()->json($users, 200);
+                //return $users;
+                //return response()->json($results, 200);
+                //return "users:".$users;
+                return response()->json(['classes'=>$results]);
+            }else{
+                //write your logic for web call
+                return view('classes.classes',['classes'=>$results]);
+            }
+        }
+        
+       
      }//
      public function getStudents(Request $request)
      {
@@ -84,6 +108,8 @@ class ClassesController extends Controller
             return response()->json($classjo);
             //return response()->json(['classjo'=>$classstudents]);
         }
+
+        
         
      }
      public function getExams(Request $request)
@@ -215,27 +241,9 @@ class ClassesController extends Controller
          $gotoclasslist = $classModel->getOtherClasses($classid);
          $classhomeworks = $classModel->getClassHomeworks();
 
-         if( $request->is('api/*')){
-            $classjo =
-                ['classjo'=>
-                    [
-                        ['class'=>$class[0]]
-                        ,['gotoclasslist'=>$gotoclasslist]
-                        ,['classstudents'=>$classstudents]
-                        ,['classAttendanceStdList'=>$classAttendanceStdList]
-                        ,['classsubjects'=>$classsubjects]
-                        ,['classhomeworks'=>$classhomeworks]
-                        ,['formteachers'=>$formteachers]
-                        ,['nonformteachers'=>$nonformteachers]
-                        ,['termslist'=>$termlist]
-                    ]
-                ];
-            return response()->json($classjo);
-            //return response()->json(['classjo'=>$classstudents]);
-        }
-        else{
+        if(isset($request['client'])&&$request['client']=='android') {
             return view(
-                'classes.class.view',
+                'android.class',
                 [
                 'class'=>$class[0]
                 ,'gotoclasslist'=>$gotoclasslist
@@ -247,7 +255,43 @@ class ClassesController extends Controller
                 ,'termslist'=>$termlist
                 ]
             );
+        }else{
+            if( $request->is('api/*')){
+                $classjo =
+                    ['classjo'=>
+                        [
+                            ['class'=>$class[0]]
+                            ,['gotoclasslist'=>$gotoclasslist]
+                            ,['classstudents'=>$classstudents]
+                            ,['classAttendanceStdList'=>$classAttendanceStdList]
+                            ,['classsubjects'=>$classsubjects]
+                            ,['classhomeworks'=>$classhomeworks]
+                            ,['formteachers'=>$formteachers]
+                            ,['nonformteachers'=>$nonformteachers]
+                            ,['termslist'=>$termlist]
+                        ]
+                    ];
+                return response()->json($classjo);
+                //return response()->json(['classjo'=>$classstudents]);
+            }
+            else{
+                return view(
+                    'classes.class.view',
+                    [
+                    'class'=>$class[0]
+                    ,'gotoclasslist'=>$gotoclasslist
+                    ,'classstudents'=>$classstudents
+                    ,'classAttendanceStdList'=>$classAttendanceStdList
+                    ,'classsubjects'=>$classsubjects
+                    ,'formteachers'=>$formteachers
+                    ,'nonformteachers'=>$nonformteachers
+                    ,'termslist'=>$termlist
+                    ]
+                );
+            }
         }
+
+         
      }
 
      public function ajax(Request $request)
@@ -270,7 +314,7 @@ class ClassesController extends Controller
                 break;
             case 'studentattlist':
                 $classid = $request['classid'];
-                $for =  $request['for'];
+                $for =  'class';  
                 $date =  '';
                 if(isset($request['date'])&&intval($request['date'])>0){
                     $date = $request['date'];
@@ -283,15 +327,18 @@ class ClassesController extends Controller
                 
                 $classModel = new StdClass($classid,0);
                 $return = $classModel->getStudentAttendanceList($for,$date);
+                //$return = json_decode($return);
                 //$return = $classid;
 
+                //return $date;
                 break;
 
             case 'saveattendance':
                 $attendance = new Attendances();
                 $uid = 1;
                 $date = "";
-                //print_r($_POST);
+
+                //print_r($_POST['students']);
                 //$return = $request['students'];
                 $return = $attendance->saveAttendance($date, $request['classid'], $uid, $request['students']);
                 break;

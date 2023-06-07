@@ -12,8 +12,10 @@ class Guardians extends Model
     public function getStudentGuardians($stdid=0)
     {
         $sql = "SELECT *
-                    , (SELECT CONCAT_WS(' ',firstname,othernames,surname) FROM profile WHERE user_id=ID LIMIT 1) AS fullname
-                     FROM guardians WHERE studentid=$stdid";
+                    , (SELECT CONCAT_WS(' ',firstname,othernames,surname) FROM profile WHERE user_id=sg.guardianid LIMIT 1) AS fullname
+                    , gc.*
+                    , cont.*
+                    FROM studentguardians sg, guardian_contacts gc, contacts cont WHERE gc.guardianID=sg.guardianid AND cont.ID=gc.contactID AND studentid=$stdid";
         return DB::select($sql);
     }
 

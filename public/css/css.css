@@ -16,9 +16,7 @@ body a{
     border:solid 1px #d31204;
 }
 
-.PC{
-    
-}
+
 
 .exams .exam .icon
 {
@@ -67,38 +65,38 @@ body a{
 /*****************************/
 .present
 {
-    color: white;
-    background-color: #4caf50;
+    color: white !important;
+    background-color: #4caf50 !important;
 }
 .absent
 {
-    color: white;
-    background-color: #ff5722;
+    color: white !important;
+    background-color: #ff5722 !important;
 }
 .late
 {
-    color: #082135;
-    background-color: #ffeb3b;
+    color: #082135 !important;
+    background-color: #ffeb3b !important;
 }
 .absent
 {
-    color: white;
-    background-color: #ff5722;
+    color: white !important;
+    background-color: #ff5722 !important;
 }
 .dropout
 {
-    color: white;
-    background-color: #d31204;
+    color: white !important;
+    background-color: #d31204 !important;
 }
 .sick
 {
-    color: #082135;
-    background-color: lightblue;
+    color: #082135 !important;
+    background-color: lightblue !important;
 }
 .holiday
 {
-    color: #082135;
-    background-color: #ff9800;
+    color: #082135 !important;
+    background-color: #ff9800 !important;
 }
 .ongoingfont
 {

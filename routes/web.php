@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\MessageNotification;
 use App\Http\Controllers\Authentication;
 use App\Http\Controllers\Classes;
 use App\Http\Controllers\Students;
@@ -18,10 +19,15 @@ use Illuminate\Http\Request;
 |
 */
 
-/*Route::get('/', function () {
-    return view('welcome');
-});*/
-Route::get('/', 'App\Http\Controllers\DashboardController@index', 'dashboard'); 
+Route::get('/event', function () {
+    event (new MessageNotification('Ni hao Ma!!'));
+});
+Route::get('/listen', function () {
+    return view ('listen');
+});
+
+Route::get('/', 'App\Http\Controllers\DashboardController@index'); 
+Route::get('/testjs', 'App\Http\Controllers\TestjsController@index'); 
 
 Route::get('/students', 'App\Http\Controllers\Students@index');
 //Route::get('/classes/view', 'App\Http\Controllers\Classes@viewClass');
